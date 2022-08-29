@@ -9,6 +9,7 @@ import java.util.Map;
 public class RequestHandler implements Runnable {
     private Socket connection;
     private static ObjectMapper objectMapper = new ObjectMapper();
+    private ResponseService responseService = new ResponseService();
 
     public RequestHandler(Socket connection) {
         this.connection = connection;
@@ -79,7 +80,7 @@ public class RequestHandler implements Runnable {
         TimeResponseMessageBody timeResponseMessageBody = new TimeResponseMessageBody();
         timeResponseMessageBody.setTime(String.valueOf(new Date()));
         byte[] timeJsonBytes = objectMapper.writeValueAsBytes(timeResponseMessageBody);
-        ResponseStateCode.response200OK(dataOutputStream);
+        ResponseStateCode.response200OK.response(dataOutputStream);
         dataOutputStream.write(timeJsonBytes, 0, timeJsonBytes.length);
         dataOutputStream.flush();
     }
@@ -87,12 +88,13 @@ public class RequestHandler implements Runnable {
     private static void responseFromGETAndImage(DataOutputStream dataOutputStream) throws IOException {
         String rootPath = System.getProperty("user.dir");
         BufferedImage originalImage =
-            ImageIO.read(new File(rootPath+"\\SimpleHTTP\\src\\main\\java\\sea.jpg"));
+            ImageIO.read(new File(rootPath+File.separator+"SimpleHTTP"+File.separator+"src"+File.separator+
+                "main"+File.separator+"java"+File.separator+"sea.jpg"));
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ImageIO.write(originalImage, "jpg", byteArrayOutputStream);
         byteArrayOutputStream.flush();
         byte[] imageInByte = byteArrayOutputStream.toByteArray();
-        ResponseStateCode.response200OK(dataOutputStream);
+        ResponseStateCode.response200OK.response(dataOutputStream);
         dataOutputStream.write(imageInByte,0,imageInByte.length);
         dataOutputStream.flush();
     }
@@ -100,41 +102,46 @@ public class RequestHandler implements Runnable {
     private static void responseFromGETAndText(DataOutputStream dataOutputStream, RequestMethod requestMethod) throws IOException {
         String textId = requestMethod.getTextId();
         if (textId == null) {
-            ResponseStateCode.response404NotFound(dataOutputStream);
+            ResponseStateCode.response404NotFound.response(dataOutputStream);
         } else {
             String storageString = StringStorage.getString(textId);
             if (storageString == null) {
-                ResponseStateCode.response404NotFound(dataOutputStream);
+                ResponseStateCode.response404NotFound.response(dataOutputStream);
             } else {
-                ResponseStateCode.response200OK(dataOutputStream);
+                ResponseStateCode.response200OK.response(dataOutputStream);
                 dataOutputStream.writeBytes(storageString);
                 dataOutputStream.flush();
             }
         }
     }
-
     private static void responseFromPostAndText(RequestMethod requestMethod, DataOutputStream dataOutputStream,
                                                 BufferedReader bufferedReader) throws IOException {
         String textId = requestMethod.getTextId();
         if (textId == null) {
-            ResponseStateCode.response404NotFound(dataOutputStream);
+            ResponseStateCode.response404NotFound.response(dataOutputStream);
         } else {
             Map<String, String> headerInformation = RequestTool.readHeader(bufferedReader);
             int messageBodyLength = Integer.parseInt(headerInformation.get("Content-Length"));
             String messageBody = RequestTool.readDate(bufferedReader, messageBodyLength);
             StringStorage.storeString(textId, messageBody);
-            ResponseStateCode.response201Created(dataOutputStream);
+            ResponseStateCode.response201Created.response(dataOutputStream);
             dataOutputStream.flush();
         }
     }
 
-    private static void responseFromDELETEAndText(RequestMethod requestMethod, DataOutputStream dataOutputStream) throws IOException {
+    private static void responseFromDELETEAndText(RequestMethod requestMethod, DataOutputStream dataOutputStream)
+        throws IOException {
         String textId = requestMethod.getTextId();
         if (textId != null) {
-            StringStorage.removeString(textId);
-            ResponseStateCode.response204NoContent(dataOutputStream);
+            String getString = StringStorage.getString(textId);
+            if (getString != null) {
+                StringStorage.removeString(textId);
+                ResponseStateCode.response204NoContent.response(dataOutputStream);
+            } else {
+                ResponseStateCode.response404NotFound.response(dataOutputStream);
+            }
         } else {
-            ResponseStateCode.response404NotFound(dataOutputStream);
+            ResponseStateCode.response404NotFound.response(dataOutputStream);
         }
     }
 }
