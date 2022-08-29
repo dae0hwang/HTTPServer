@@ -1,7 +1,7 @@
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-enum ResponseStateCode {
+public enum ResponseStateCode {
     response200OK {
         @Override
         void response(DataOutputStream dataOutputStream) throws IOException {
