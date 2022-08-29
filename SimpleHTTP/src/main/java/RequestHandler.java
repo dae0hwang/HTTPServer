@@ -5,11 +5,12 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestHandler implements Runnable {
     private Socket connection;
     private static ObjectMapper objectMapper = new ObjectMapper();
-    private ResponseService responseService = new ResponseService();
+    private static ConcurrentHashMap<String, String> stringStorage = new ConcurrentHashMap<>();
 
     public RequestHandler(Socket connection) {
         this.connection = connection;
@@ -53,7 +54,7 @@ public class RequestHandler implements Runnable {
                             break;
                     }
             }
-            System.out.println("checking StringStorage: " + StringStorage.getMap());
+            System.out.println("checking StringStorage: " + stringStorage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -104,7 +105,7 @@ public class RequestHandler implements Runnable {
         if (textId == null) {
             ResponseStateCode.response404NotFound.response(dataOutputStream);
         } else {
-            String storageString = StringStorage.getString(textId);
+            String storageString = stringStorage.get(textId);
             if (storageString == null) {
                 ResponseStateCode.response404NotFound.response(dataOutputStream);
             } else {
@@ -123,7 +124,7 @@ public class RequestHandler implements Runnable {
             Map<String, String> headerInformation = RequestTool.readHeader(bufferedReader);
             int messageBodyLength = Integer.parseInt(headerInformation.get("Content-Length"));
             String messageBody = RequestTool.readDate(bufferedReader, messageBodyLength);
-            StringStorage.storeString(textId, messageBody);
+            stringStorage.put(textId, messageBody);
             ResponseStateCode.response201Created.response(dataOutputStream);
             dataOutputStream.flush();
         }
@@ -133,9 +134,9 @@ public class RequestHandler implements Runnable {
         throws IOException {
         String textId = requestMethod.getTextId();
         if (textId != null) {
-            String getString = StringStorage.getString(textId);
+            String getString = stringStorage.get(textId);
             if (getString != null) {
-                StringStorage.removeString(textId);
+                stringStorage.remove(textId);
                 ResponseStateCode.response204NoContent.response(dataOutputStream);
             } else {
                 ResponseStateCode.response404NotFound.response(dataOutputStream);
