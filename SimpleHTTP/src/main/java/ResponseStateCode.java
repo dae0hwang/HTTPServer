@@ -33,4 +33,3 @@ public enum ResponseStateCode {
 
     abstract void response(DataOutputStream dataOutputStream) throws IOException;
 }
-

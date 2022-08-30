@@ -40,7 +40,8 @@ public class ResponseService {
     public byte[] responseFromGETAndImage() throws IOException {
         String rootPath = System.getProperty("user.dir");
         BufferedImage originalImage =
-            ImageIO.read(new File(rootPath+"\\SimpleHTTP\\src\\main\\java\\sea.jpg"));
+            ImageIO.read(new File(rootPath+File.separator+"src" +File.separator+"main"
+                +File.separator+"java"+File.separator+"sea.jpg"));
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ImageIO.write(originalImage, "jpg", byteArrayOutputStream);
         byteArrayOutputStream.flush();
@@ -62,7 +63,6 @@ public class ResponseService {
     public void responseFromPostAndText(RequestMethod requestMethod, BufferedReader bufferedReader) throws IOException {
         String textId = requestMethod.getTextId();
         if (textId == null) {
-            return;
         } else {
             Map<String, String> headerInformation = requestTool.readHeader(bufferedReader);
             int messageBodyLength = Integer.parseInt(headerInformation.get("Content-Length"));
