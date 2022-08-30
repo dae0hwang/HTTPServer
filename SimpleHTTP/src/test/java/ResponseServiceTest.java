@@ -15,8 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ResponseServiceTest {
     Socket socket;
@@ -169,8 +168,14 @@ class ResponseServiceTest {
     }
 
     @Test
-    void sendResponseFromGETAndTime() {
-
+    void sendResponseFromGETAndTime() throws IOException {
+        //given
+        byte[] bytes = {0, 1, 2};
+        //when
+        responseService.sendResponseFromGETAndTime(dataOutputStream, bytes);
+        //then
+        verify(dataOutputStream, times(1)).write(bytes, 0,bytes.length);
+        verify(dataOutputStream,times(1)).flush();
     }
 
     @Test
