@@ -1,3 +1,4 @@
 rootProject.name = 'HTTPServer'
 include 'SimpleHTTP'
+include 'MockTest'
 

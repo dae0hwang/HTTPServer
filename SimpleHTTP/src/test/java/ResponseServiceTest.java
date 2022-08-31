@@ -9,12 +9,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 class ResponseServiceTest {
@@ -125,28 +122,26 @@ class ResponseServiceTest {
 
         //then3
         assertEquals(expected3, result3);
-
     }
 
     @Disabled
     @Test
     void responseFromPostAndText() throws IOException {
         //given
-        when(requestMethod.getTextId()).thenReturn(null).thenReturn("textId");
-        Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("Content-Length", "11");
-        when(requestTool.readHeader(bufferedReader)).thenReturn(headerMap);
-        when(requestTool.readDate(bufferedReader, anyInt())).thenReturn("messageBody");
+        when(requestMethod.getTextId()).thenReturn("textId");
+//        Map<String, String> headerMap = new HashMap<>();
+//        headerMap.put("Content-Length", "11");
+//        when(requestTool.readHeader(bufferedReader)).thenReturn(headerMap);
+        when(requestTool.readDate(bufferedReader, 11)).thenReturn("messageBody");
         ConcurrentHashMap<String, String> result = new ConcurrentHashMap<>();
         result.put("textId", "messageBody");
 
         //when1
         responseService.responseFromPostAndText(requestMethod, bufferedReader);
-        responseService.responseFromPostAndText(requestMethod, bufferedReader);
+//        responseService.responseFromPostAndText(requestMethod, bufferedReader);
 
         //then1
         assertEquals(ResponseService.stringStorage, result);
-
     }
 
     @Test
@@ -179,18 +174,57 @@ class ResponseServiceTest {
     }
 
     @Test
-    void sendResponseFromGETAndImage() {
+    void sendResponseFromGETAndImage() throws IOException {
+        //given
+        byte[] bytes = {0, 1, 2};
+        //when
+        responseService.sendResponseFromGETAndImage(dataOutputStream, bytes);
+        //then
+        verify(dataOutputStream, times(1)).write(bytes, 0,bytes.length);
+        verify(dataOutputStream,times(1)).flush();
     }
 
     @Test
-    void sendResponseFromGETAndText() {
+    void sendResponseFromGETAndText() throws IOException {
+        //given
+        when(requestMethod.getTextId()).thenReturn(null).thenReturn("textId").thenReturn("textId");
+
+        //when
+        responseService.sendResponseFromGETAndText(dataOutputStream, requestMethod, null);
+        responseService.sendResponseFromGETAndText(dataOutputStream, requestMethod, null);
+        responseService.sendResponseFromGETAndText(dataOutputStream, requestMethod, "storageString");
+
+        //then
+        verify(dataOutputStream, times(1)).writeBytes("storageString");
+        verify(dataOutputStream, times(1)).flush();
     }
 
     @Test
-    void sendResponseFromPostAndText() {
+    void sendResponseFromPostAndText() throws IOException {
+        //given
+        when(requestMethod.getTextId()).thenReturn(null).thenReturn("textId");
+
+        //when
+        responseService.sendResponseFromPostAndText(requestMethod, dataOutputStream);
+        responseService.sendResponseFromPostAndText(requestMethod, dataOutputStream);
+
+        //then
+        verify(dataOutputStream, times(1)).flush();
     }
 
+    @Disabled
     @Test
-    void sendResponseFromDELETEAndText() {
+    void sendResponseFromDELETEAndText() throws IOException {
+        //given
+        ResponseService.stringStorage.put("textId", "MessageBody");
+        when(requestMethod.getTextId()).thenReturn(null).thenReturn("wrongId").thenReturn("textId");
+
+        //when
+        responseService.sendResponseFromDELETEAndText(requestMethod, dataOutputStream);
+        responseService.sendResponseFromDELETEAndText(requestMethod, dataOutputStream);
+        responseService.sendResponseFromDELETEAndText(requestMethod, dataOutputStream);
+
+        //then
+
     }
 }
