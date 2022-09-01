@@ -125,6 +125,7 @@ class ResponseServiceTest {
         assertEquals(expected3, result3);
     }
 
+    @Disabled
     @Test
     void responseFromPostAndText() throws IOException {
         //given
