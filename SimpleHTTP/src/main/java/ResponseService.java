@@ -62,12 +62,13 @@ public class ResponseService {
 
     public void responseFromPostAndText(RequestMethod requestMethod, BufferedReader bufferedReader) throws IOException {
         String textId = requestMethod.getTextId();
-        if (textId == null) {
-        } else {
+        if (textId != null) {
             Map<String, String> headerInformation = requestTool.readHeader(bufferedReader);
-            int messageBodyLength = Integer.parseInt(headerInformation.get("Content-Length"));
-            String messageBody = requestTool.readDate(bufferedReader, messageBodyLength);
-            stringStorage.put(textId, messageBody);
+            if (headerInformation.containsKey("Content-Length")) {
+                int messageBodyLength = Integer.parseInt(headerInformation.get("Content-Length").trim());
+                String messageBody = requestTool.readDate(bufferedReader, messageBodyLength);
+                stringStorage.put(textId, messageBody);
+            }
         }
     }
 

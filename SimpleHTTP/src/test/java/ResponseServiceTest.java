@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -124,23 +125,22 @@ class ResponseServiceTest {
         assertEquals(expected3, result3);
     }
 
-    @Disabled
     @Test
     void responseFromPostAndText() throws IOException {
         //given
         when(requestMethod.getTextId()).thenReturn("textId");
-//        Map<String, String> headerMap = new HashMap<>();
-//        headerMap.put("Content-Length", "11");
-//        when(requestTool.readHeader(bufferedReader)).thenReturn(headerMap);
-        when(requestTool.readDate(bufferedReader, 11)).thenReturn("messageBody");
+        HashMap<String, String> map = new HashMap<>();
+        map.put("Content-Length", "7");
+        when(requestTool.readHeader(bufferedReader)).thenReturn(map);
+        when(requestTool.readDate(bufferedReader, 7)).thenReturn("message");
+
         ConcurrentHashMap<String, String> result = new ConcurrentHashMap<>();
-        result.put("textId", "messageBody");
+        result.put("textId", "message");
 
-        //when1
+        //when
         responseService.responseFromPostAndText(requestMethod, bufferedReader);
-//        responseService.responseFromPostAndText(requestMethod, bufferedReader);
 
-        //then1
+        //then
         assertEquals(ResponseService.stringStorage, result);
     }
 
