@@ -41,16 +41,18 @@ public class RequestHandler implements Runnable {
                 case "POST":
                     switch (requestMethod.getRequestType()) {
                         case "text":
-                            responseService.responseFromPostAndText(requestMethod, bufferedReader);
-                            responseService.sendResponseFromPostAndText(requestMethod, dataOutputStream);
+                            String messageBody = responseService.saveDateFromPostAndText(requestMethod, bufferedReader);
+                            TreatStateCode treatStateCode =
+                                responseService.treatFromPostAndText(messageBody, requestMethod);
+                            responseService.responseFromPostAndText(treatStateCode, dataOutputStream);
                             break;
                     }
                     break;
                 case "DELETE":
                     switch (requestMethod.getRequestType()) {
                         case "text":
-                            responseService.responseFromDELETEAndText(requestMethod);
-                            responseService.sendResponseFromDELETEAndText(requestMethod, dataOutputStream);
+                            TreatStateCode treatStateCode = responseService.responseFromDELETEAndText(requestMethod);
+                            responseService.sendResponseFromDELETEAndText(treatStateCode, dataOutputStream);
                             break;
                     }
             }

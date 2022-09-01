@@ -60,40 +60,58 @@ public class ResponseService {
         return null;
     }
 
-    public void responseFromPostAndText(RequestMethod requestMethod, BufferedReader bufferedReader) throws IOException {
+    public String saveDateFromPostAndText
+        (RequestMethod requestMethod, BufferedReader bufferedReader) throws IOException {
         String textId = requestMethod.getTextId();
-        if (textId != null) {
+        if (textId == null) {
+            return null;
+        } else {
             Map<String, String> headerInformation = requestTool.readHeader(bufferedReader);
             if (headerInformation.containsKey("Content-Length")) {
                 int messageBodyLength = Integer.parseInt(headerInformation.get("Content-Length").trim());
                 String messageBody = requestTool.readDate(bufferedReader, messageBodyLength);
-                stringStorage.put(textId, messageBody);
+                return messageBody;
+            } else {
+                return null;
             }
         }
     }
 
-    public void responseFromDELETEAndText(RequestMethod requestMethod) throws IOException {
+    public TreatStateCode treatFromPostAndText(String messageBody, RequestMethod requestMethod) {
+        if (messageBody == null) {
+            return TreatStateCode.FAIL;
+        } else {
+            String textId = requestMethod.getTextId();
+            stringStorage.put(textId, messageBody);
+            return TreatStateCode.SUCEESS;
+        }
+    }
+
+    public TreatStateCode responseFromDELETEAndText(RequestMethod requestMethod) throws IOException {
         String textId = requestMethod.getTextId();
         if (textId != null) {
             String getString = stringStorage.get(textId);
             if (getString != null) {
                 stringStorage.remove(textId);
+                return TreatStateCode.SUCEESS;
             } else {
+                return TreatStateCode.FAIL;
             }
         } else {
+            return TreatStateCode.FAIL;
         }
     }
 
     public void sendResponseFromGETAndTime(DataOutputStream dataOutputStream, byte[] timeJsonBytes)
         throws IOException {
-        ResponseStateCode.response200OK.response(dataOutputStream);
+        dataOutputStream.writeBytes(ResponseStateCode.response200OK.getStateMessage());
         dataOutputStream.write(timeJsonBytes, 0, timeJsonBytes.length);
         dataOutputStream.flush();
     }
 
     public void sendResponseFromGETAndImage(DataOutputStream dataOutputStream, byte[] imageInByte)
         throws IOException {
-        ResponseStateCode.response200OK.response(dataOutputStream);
+        dataOutputStream.writeBytes(ResponseStateCode.response200OK.getStateMessage());
         dataOutputStream.write(imageInByte,0,imageInByte.length);
         dataOutputStream.flush();
     }
@@ -102,41 +120,35 @@ public class ResponseService {
                                            String storageString) throws IOException {
         String textId = requestMethod.getTextId();
         if (textId == null) {
-            ResponseStateCode.response404NotFound.response(dataOutputStream);
+            dataOutputStream.writeBytes(ResponseStateCode.response404NotFound.getStateMessage());
         } else {
             if (storageString == null) {
-                ResponseStateCode.response404NotFound.response(dataOutputStream);
+                dataOutputStream.writeBytes(ResponseStateCode.response404NotFound.getStateMessage());
             } else {
-                ResponseStateCode.response200OK.response(dataOutputStream);
+                dataOutputStream.writeBytes(ResponseStateCode.response200OK.getStateMessage());
                 dataOutputStream.writeBytes(storageString);
                 dataOutputStream.flush();
             }
         }
     }
 
-    public void sendResponseFromPostAndText(RequestMethod requestMethod, DataOutputStream dataOutputStream)
+    public void responseFromPostAndText(TreatStateCode treatStateCode, DataOutputStream dataOutputStream)
         throws IOException {
-        String textId = requestMethod.getTextId();
-        if (textId == null) {
-            ResponseStateCode.response404NotFound.response(dataOutputStream);
-        } else {
-            ResponseStateCode.response201Created.response(dataOutputStream);
-            dataOutputStream.flush();
+        if (treatStateCode == TreatStateCode.SUCEESS) {
+            dataOutputStream.writeBytes(ResponseStateCode.response201Created.getStateMessage());
+        } else if (treatStateCode == TreatStateCode.FAIL) {
+            dataOutputStream.writeBytes(ResponseStateCode.response404NotFound.getStateMessage());
         }
     }
 
-    public void sendResponseFromDELETEAndText(RequestMethod requestMethod, DataOutputStream dataOutputStream)
+    public void sendResponseFromDELETEAndText(TreatStateCode treatStateCode, DataOutputStream dataOutputStream)
         throws IOException {
-        String textId = requestMethod.getTextId();
-        if (textId != null) {
-            String getString = stringStorage.get(textId);
-            if (getString != null) {
-                ResponseStateCode.response204NoContent.response(dataOutputStream);
-            } else {
-                ResponseStateCode.response404NotFound.response(dataOutputStream);
-            }
-        } else {
-            ResponseStateCode.response404NotFound.response(dataOutputStream);
+        if (treatStateCode == TreatStateCode.SUCEESS) {
+            dataOutputStream.writeBytes(ResponseStateCode.response204NoContent.getStateMessage());
+            dataOutputStream.flush();
+        } else if (treatStateCode == TreatStateCode.FAIL) {
+            dataOutputStream.writeBytes(ResponseStateCode.response404NotFound.getStateMessage());
+            dataOutputStream.flush();
         }
     }
 }

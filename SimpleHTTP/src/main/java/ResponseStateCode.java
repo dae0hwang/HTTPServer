@@ -1,35 +1,13 @@
-import java.io.DataOutputStream;
-import java.io.IOException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
+@AllArgsConstructor
 public enum ResponseStateCode {
-    response200OK {
-        @Override
-        void response(DataOutputStream dataOutputStream) throws IOException {
-            String responseStateMessage = "HTTP/1.1 200 OK\r\n\r\n";
-            dataOutputStream.write(responseStateMessage.getBytes("UTF-8"));
-        }
-    },
-    response201Created {
-        @Override
-        void response(DataOutputStream dataOutputStream) throws IOException {
-            String responseStateMessage = "HTTP/1.1 201 Created\r\n\r\n";
-            dataOutputStream.write(responseStateMessage.getBytes("UTF-8"));
-        }
-    },
-    response204NoContent {
-        @Override
-        void response(DataOutputStream dataOutputStream) throws IOException{
-            String responseStateMessage = "HTTP/1.1 204 No Content\r\n\r\n";
-            dataOutputStream.write(responseStateMessage.getBytes("UTF-8"));
-        }
-    },
-    response404NotFound {
-        @Override
-        void response(DataOutputStream dataOutputStream) throws IOException{
-            String responseStateMessage = "HTTP/1.1 404 Not Found\r\n\r\n";
-            dataOutputStream.write(responseStateMessage.getBytes("UTF-8"));
-        }
-    };
+    response200OK("HTTP/1.1 200 OK\r\n\r\n"),
+    response201Created("HTTP/1.1 201 Created\r\n\r\n") ,
+    response204NoContent("HTTP/1.1 204 No Content\r\n\r\n"),
+    response404NotFound("HTTP/1.1 404 Not Found\r\n\r\n") ;
 
-    abstract void response(DataOutputStream dataOutputStream) throws IOException;
+    private final String stateMessage;
 }
