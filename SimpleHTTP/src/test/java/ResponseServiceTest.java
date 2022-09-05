@@ -76,23 +76,22 @@ class ResponseServiceTest {
         assertArrayEquals(expectedJsonBytes, resultJsonBytes);
     }
 
-//    @Test
-//    void responseFromGETAndImage() throws IOException {
-//        //given
-//        String rootPath = System.getProperty("user.dir");
-//        BufferedImage originalImage = ImageIO.read(new File(rootPath + File.separator + "src"
-//            + File.separator + "main" + File.separator + "java" + File.separator + "sea.jpg"));
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        ImageIO.write(originalImage, "jpg", byteArrayOutputStream);
-//        byteArrayOutputStream.flush();
-//        byte[] resultImageBytes = byteArrayOutputStream.toByteArray();
-//
-//        //when
-//        byte[] expectedImageBytes = responseService.responseFromGETAndImage();
-//
-//        //then
-//        assertArrayEquals(expectedImageBytes, resultImageBytes);
-//    }
+    @Test
+    void responseFromGETAndImage() throws IOException {
+        //given
+        BufferedImage image = ImageIO.read(getClass().getResourceAsStream("sea.jpg"));
+        System.out.println(image);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", byteArrayOutputStream);
+        byteArrayOutputStream.flush();
+        byte[] resultImageBytes = byteArrayOutputStream.toByteArray();
+
+        //when
+        byte[] expectedImageBytes = responseService.responseFromGETAndImage();
+
+        //then
+        assertArrayEquals(expectedImageBytes, resultImageBytes);
+    }
 
     @Test
     void responseFromGETAndText() {
