@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,12 +37,10 @@ public class ResponseService {
     }
 
     public byte[] responseFromGETAndImage() throws IOException {
-        String rootPath = System.getProperty("user.dir");
-        BufferedImage originalImage =
-            ImageIO.read(new File(rootPath+File.separator+"src" +File.separator+"main"
-                +File.separator+"java"+File.separator+"sea.jpg"));
+        BufferedImage image = ImageIO.read(getClass().getResourceAsStream("sea.jpg"));
+        System.out.println(image);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(originalImage, "jpg", byteArrayOutputStream);
+        ImageIO.write(image, "jpg", byteArrayOutputStream);
         byteArrayOutputStream.flush();
         byte[] imageInByte = byteArrayOutputStream.toByteArray();
         return imageInByte;
