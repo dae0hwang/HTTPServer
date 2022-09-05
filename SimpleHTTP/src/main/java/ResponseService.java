@@ -5,12 +5,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ResponseService {
     private ObjectMapper objectMapper = new ObjectMapper();
-    RequestTool requestTool = new RequestTool();
     protected static ConcurrentHashMap<String, String> stringStorage = new ConcurrentHashMap<>();
 
     public  RequestMethod readFirstLIneAndImplementRequestMethod(BufferedReader bufferedReader)
@@ -60,30 +58,13 @@ public class ResponseService {
         return null;
     }
 
-    public String saveDateFromPostAndText
-        (RequestMethod requestMethod, BufferedReader bufferedReader) throws IOException {
-        String textId = requestMethod.getTextId();
-        if (textId == null) {
-            return null;
-        } else {
-            Map<String, String> headerInformation = requestTool.readHeader(bufferedReader);
-            if (headerInformation.containsKey("Content-Length")) {
-                int messageBodyLength = Integer.parseInt(headerInformation.get("Content-Length").trim());
-                String messageBody = requestTool.readDate(bufferedReader, messageBodyLength);
-                return messageBody;
-            } else {
-                return null;
-            }
-        }
-    }
-
     public TreatStateCode treatFromPostAndText(String messageBody, RequestMethod requestMethod) {
         if (messageBody == null) {
             return TreatStateCode.FAIL;
         } else {
             String textId = requestMethod.getTextId();
             stringStorage.put(textId, messageBody);
-            return TreatStateCode.SUCEESS;
+            return TreatStateCode.SUCCESS;
         }
     }
 
@@ -93,7 +74,7 @@ public class ResponseService {
             String getString = stringStorage.get(textId);
             if (getString != null) {
                 stringStorage.remove(textId);
-                return TreatStateCode.SUCEESS;
+                return TreatStateCode.SUCCESS;
             } else {
                 return TreatStateCode.FAIL;
             }
@@ -134,7 +115,7 @@ public class ResponseService {
 
     public void responseFromPostAndText(TreatStateCode treatStateCode, DataOutputStream dataOutputStream)
         throws IOException {
-        if (treatStateCode == TreatStateCode.SUCEESS) {
+        if (treatStateCode == TreatStateCode.SUCCESS) {
             dataOutputStream.writeBytes(ResponseStateCode.response201Created.getStateMessage());
         } else if (treatStateCode == TreatStateCode.FAIL) {
             dataOutputStream.writeBytes(ResponseStateCode.response404NotFound.getStateMessage());
@@ -143,7 +124,7 @@ public class ResponseService {
 
     public void sendResponseFromDELETEAndText(TreatStateCode treatStateCode, DataOutputStream dataOutputStream)
         throws IOException {
-        if (treatStateCode == TreatStateCode.SUCEESS) {
+        if (treatStateCode == TreatStateCode.SUCCESS) {
             dataOutputStream.writeBytes(ResponseStateCode.response204NoContent.getStateMessage());
             dataOutputStream.flush();
         } else if (treatStateCode == TreatStateCode.FAIL) {

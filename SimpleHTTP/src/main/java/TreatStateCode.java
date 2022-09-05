@@ -4,6 +4,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TreatStateCode {
-    SUCEESS,
+
+    SUCCESS,
     FAIL;
 }

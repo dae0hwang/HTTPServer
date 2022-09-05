@@ -1,11 +1,14 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
 
 public class RequestHandler implements Runnable {
     private Socket connection;
     private static ObjectMapper objectMapper = new ObjectMapper();
     private ResponseService responseService = new ResponseService();
+    private RequestTool requestTool = new RequestTool();
+
 
     public RequestHandler(Socket connection) {
         this.connection = connection;
@@ -41,7 +44,16 @@ public class RequestHandler implements Runnable {
                 case "POST":
                     switch (requestMethod.getRequestType()) {
                         case "text":
-                            String messageBody = responseService.saveDateFromPostAndText(requestMethod, bufferedReader);
+                            String textId = requestMethod.getTextId();
+                            String messageBody;
+                            if (textId != null) {
+                                Map<String, String> headerInformation = requestTool.readHeader(bufferedReader);
+                                int messageBodyLength
+                                    = Integer.parseInt(headerInformation.get("Content-Length").trim());
+                                messageBody = requestTool.readDate(bufferedReader, messageBodyLength);
+                            } else {
+                                messageBody = null;
+                            }
                             TreatStateCode treatStateCode =
                                 responseService.treatFromPostAndText(messageBody, requestMethod);
                             responseService.responseFromPostAndText(treatStateCode, dataOutputStream);

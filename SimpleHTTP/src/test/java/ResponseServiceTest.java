@@ -1,7 +1,6 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -9,8 +8,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -126,32 +123,6 @@ class ResponseServiceTest {
         assertEquals(expected3, result3);
     }
 
-    @Disabled
-    @Test
-    void saveDateFromPostAndText() throws IOException {
-        //given
-        when(requestMethod.getTextId()).thenReturn(null).thenReturn("textId").thenReturn("textId");
-        Map<String, String> headerInformation1 = new HashMap<>();
-        Map<String, String> headerInformation2 = new HashMap<>();
-        headerInformation2.put("Content-Length", "7");
-        when(requestTool.readHeader(bufferedReader)).thenReturn(headerInformation1).thenReturn(headerInformation2);
-        when(requestTool.readDate(bufferedReader, 7)).thenReturn("messageBody");
-        String result1 = null;
-        String result2 = null;
-        String result3 = "messageBody";
-
-        //when1
-        String expectedMessageBody1 = responseService.saveDateFromPostAndText(requestMethod, bufferedReader);
-        String expectedMessageBody2 = responseService.saveDateFromPostAndText(requestMethod, bufferedReader);
-        String expectedMessageBody3 = responseService.saveDateFromPostAndText(requestMethod, bufferedReader);
-
-        //then
-        assertEquals(expectedMessageBody1, result1);
-        assertEquals(expectedMessageBody2, result2);
-        assertEquals(expectedMessageBody3, result3);
-
-    }
-
     @Test
     void treatFromPostAndText() {
         //given
@@ -162,16 +133,16 @@ class ResponseServiceTest {
         resultStringStorage.put("textId", "messageBody");
 
         //when1
-        TreatStateCode expected = responseService.treatFromPostAndText(null, requestMethod);
+        TreatStateCode expected1 = responseService.treatFromPostAndText(null, requestMethod);
 
         //then1
-        assertEquals(expected, result1);
+        assertEquals(expected1, result1);
 
         //when2
         TreatStateCode expected2 = responseService.treatFromPostAndText("messageBody", requestMethod);
 
         //then2
-        assertEquals(expected, result1);
+        assertEquals(expected2, result2);
         assertEquals(ResponseService.stringStorage, resultStringStorage);
 
 
@@ -251,6 +222,7 @@ class ResponseServiceTest {
             .writeBytes(ResponseStateCode.response404NotFound.getStateMessage());
     }
 
+    //check
     @Test
     void sendResponseFromDELETEAndText() throws IOException {
         //given
